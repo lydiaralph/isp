@@ -106,6 +106,7 @@ Vagrant.configure("2") do |config|
      touch /etc/snort/rules/white_list.rules
      touch /etc/snort/rules/black_list.rules
      touch /etc/snort/rules/local.rules
+     touch /etc/snort/rules/lydiaralph.rules
 
      cp ~/snort_src/snort-2.9.11.1/etc/*.conf* /etc/snort
      cp ~/snort_src/snort-2.9.11.1/etc/*.map /etc/snort
@@ -118,5 +119,14 @@ Vagrant.configure("2") do |config|
     wget https://www.snort.org/rules/snortrules-snapshot-29111.tar.gz?oinkcode=$OINKCODE -O ~/registered.tar.gz
     tar -xvf ~/registered.tar.gz -C /etc/snort
 
+
    SHELL
 end
+
+# TODO: 
+# echo to lydiaralph.rules
+# append lydiaralph.rules to end of snort.conf
+# sudo snort -T -i eth0 -c /etc/snort/snort.conf <-- checks and loads config
+# sudo snort -A console -q -c /etc/snort/snort.conf -i eth0 <-- start up snort in IDS mode
+
+# http://resources.infosecinstitute.com/snort-rules-workshop-part-one/
