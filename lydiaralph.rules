@@ -1,10 +1,6 @@
-alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"POLICY-MULTIMEDIA Youtube video player file request"; content:"youtube.com"; sid:1000001;)
-
-alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"YouTube was accessed"; content:"youtube"; fast_pattern: only; sid:1000003;)
-
-alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"test ebay rule"; flow:to_server,established;  content:"eBay.com"; nocase; rawbytes; sid:1000002; rev:1;)
-
-
-#alert ip any any -> any any (msg:"Testing everything"; sid: 1000002;)
+alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"YouTube was accessed (1)"; content:"youtube.com"; sid:1000001;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"YouTube was accessed (2)"; content:"youtube"; fast_pattern: only; sid:1000003;)
+alert tcp $HOME_NET any -> 216.58.201.46 443 (msg:"Youtube was visited (216.58.201.46)"; sid:1000005;)
+alert tcp $HOME_NET any -> 216.58.198.174 443 (msg:"Youtube was visited (216.58.198.174)"; sid:1000003;)
 
 #alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"POLICY-MULTIMEDIA Youtube video player file request"; flow:to_server,established; content:"/get_video?video_id"; fast_pattern; nocase; http_uri; content:"youtube.com"; nocase; metadata:service http; sid:1000001;)

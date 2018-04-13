@@ -125,8 +125,10 @@ Vagrant.configure("2") do |config|
      cp /vagrant/lydiaralph.rules /etc/snort/rules/
      echo "include \\$RULE_PATH/lydiaralph.rules" >> /etc/snort/snort.conf
 
-    echo "colorscheme desert" > ~/.vimrc
+     echo "colorscheme desert" > ~/.vimrc
 
+     cp /vagrant/bash_config.env ~/.bash_profile
+     source ~/.bash_profile
 
    SHELL
 end
