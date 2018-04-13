@@ -1,5 +1,6 @@
 .idea/*
 *.iml
 
+id_rsa
 .vagrant/*
 properties.env
