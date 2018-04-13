@@ -1,0 +1,7 @@
+# Resources:
+# policy-multimedia.rules
+
+# sudo snort -T -i eth0 -c /etc/snort/snort.conf <-- checks and loads config
+# sudo snort -A console -q -c /etc/snort/snort.conf -i eth0 <-- start up snort in IDS mode
+
+# http://resources.infosecinstitute.com/snort-rules-workshop-part-one/

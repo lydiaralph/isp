@@ -67,6 +67,7 @@ Vagrant.configure("2") do |config|
 
    # LER Note: commands copied from https://www.upcloud.com/support/installing-snort-on-ubuntu/
    config.vm.provision "shell", inline: <<-SHELL
+     source /vagrant/properties.env
      apt-get update
      apt-get upgrade
      apt-get install lubuntu-desktop -y
@@ -106,27 +107,26 @@ Vagrant.configure("2") do |config|
      touch /etc/snort/rules/white_list.rules
      touch /etc/snort/rules/black_list.rules
      touch /etc/snort/rules/local.rules
-     touch /etc/snort/rules/lydiaralph.rules
 
      cp ~/snort_src/snort-2.9.11.1/etc/*.conf* /etc/snort
      cp ~/snort_src/snort-2.9.11.1/etc/*.map /etc/snort
      sed -i 's/include \$RULE\_PATH/#include \$RULE\_PATH/' /etc/snort/snort.conf
+     sed -i 's/ ..\/rules/ etc\/snort\/rules/g' /etc/snort/snort.conf
+     sed -i 's/ ..\/so_rules/ \/etc\/snort\/so_rules/g' /etc/snort/snort.conf
+     sed -i 's/ ..\/preproc_rules/ \/etc\/snort\/preproc_rules/g' /etc/snort/snort.conf
 
      wget https://www.snort.org/rules/community -O ~/community.tar.gz
      tar -xvf ~/community.tar.gz -C ~/
      cp ~/community-rules/* /etc/snort/rules
 
-    wget https://www.snort.org/rules/snortrules-snapshot-29111.tar.gz?oinkcode=$OINKCODE -O ~/registered.tar.gz
-    tar -xvf ~/registered.tar.gz -C /etc/snort
+     wget https://www.snort.org/rules/snortrules-snapshot-29111.tar.gz?oinkcode=$OINKCODE -O ~/registered.tar.gz
+     tar -xvf ~/registered.tar.gz -C /etc/snort
+
+     cp /vagrant/lydiaralph.rules /etc/snort/rules/
+     echo "include \\$RULE_PATH/lydiaralph.rules" >> /etc/snort/snort.conf
+
+    echo "colorscheme desert" > ~/.vimrc
 
 
    SHELL
 end
-
-# TODO: 
-# echo to lydiaralph.rules
-# append lydiaralph.rules to end of snort.conf
-# sudo snort -T -i eth0 -c /etc/snort/snort.conf <-- checks and loads config
-# sudo snort -A console -q -c /etc/snort/snort.conf -i eth0 <-- start up snort in IDS mode
-
-# http://resources.infosecinstitute.com/snort-rules-workshop-part-one/
