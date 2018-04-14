@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.network "forwarded_port", guest: 80, host: 21
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
      vb.gui = true
   
      # Customize the amount of memory on the VM:
-     vb.memory = "1024"
+     vb.memory = "2048"
    end
   #
   # View the documentation for the provider you are using for more
@@ -111,9 +111,9 @@ Vagrant.configure("2") do |config|
      cp ~/snort_src/snort-2.9.11.1/etc/*.conf* /etc/snort
      cp ~/snort_src/snort-2.9.11.1/etc/*.map /etc/snort
      sed -i 's/include \$RULE\_PATH/#include \$RULE\_PATH/' /etc/snort/snort.conf
-     sed -i 's/ ..\/rules/ etc\/snort\/rules/g' /etc/snort/snort.conf
-     sed -i 's/ ..\/so_rules/ \/etc\/snort\/so_rules/g' /etc/snort/snort.conf
-     sed -i 's/ ..\/preproc_rules/ \/etc\/snort\/preproc_rules/g' /etc/snort/snort.conf
+     sed -i 's/ ..\/rules/ \/etc\/snort\/rules/' /etc/snort/snort.conf
+     sed -i 's/ ..\/so_rules/ \/etc\/snort\/so_rules/' /etc/snort/snort.conf
+     sed -i 's/ ..\/preproc_rules/ \/etc\/snort\/preproc_rules/' /etc/snort/snort.conf
 
      wget https://www.snort.org/rules/community -O ~/community.tar.gz
      tar -xvf ~/community.tar.gz -C ~/
@@ -122,13 +122,14 @@ Vagrant.configure("2") do |config|
      wget https://www.snort.org/rules/snortrules-snapshot-29111.tar.gz?oinkcode=$OINKCODE -O ~/registered.tar.gz
      tar -xvf ~/registered.tar.gz -C /etc/snort
 
+     echo "colorscheme desert" > ~/.vimrc
+     cp /vagrant/bash_config.env ~/.bash_profile
+     source ~/.bash_profile
+
      cp /vagrant/lydiaralph.rules /etc/snort/rules/
      echo "include \\$RULE_PATH/lydiaralph.rules" >> /etc/snort/snort.conf
 
-     echo "colorscheme desert" > ~/.vimrc
-
-     cp /vagrant/bash_config.env ~/.bash_profile
-     source ~/.bash_profile
+     touch /var/log/snort/youtubeviolation.log
 
    SHELL
 end

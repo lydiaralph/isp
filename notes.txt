@@ -5,3 +5,8 @@
 # sudo snort -A console -q -c /etc/snort/snort.conf -i eth0 <-- start up snort in IDS mode
 
 # http://resources.infosecinstitute.com/snort-rules-workshop-part-one/
+
+cd /vagrant
+eval $(ssh-agent)
+ssh-add id_rsa
+git push

@@ -1,6 +1,17 @@
-alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"YouTube was accessed (1)"; content:"youtube.com"; sid:1000001;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"YouTube was accessed (2)"; content:"youtube"; fast_pattern: only; sid:1000003;)
-alert tcp $HOME_NET any -> 216.58.201.46 443 (msg:"Youtube was visited (216.58.201.46)"; sid:1000005;)
-alert tcp $HOME_NET any -> 216.58.198.174 443 (msg:"Youtube was visited (216.58.198.174)"; sid:1000003;)
+# Using YouTube's IP address
+alert tcp $HOME_NET any -> 216.58.201.46 443 (msg:"Youtube was visited"; threshold:type limit, track by_src, count 2 , seconds 60; sid:1000001;)
 
-#alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"POLICY-MULTIMEDIA Youtube video player file request"; flow:to_server,established; content:"/get_video?video_id"; fast_pattern; nocase; http_uri; content:"youtube.com"; nocase; metadata:service http; sid:1000001;)
+# Checking visits to youtube webpage
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Youtube was visited"; content:"youtube.com"; http_header; nocase; content:"GET"; http_method; threshold:type limit, track by_src, count 2 , seconds 60; sid:1000002;)
+
+# Monitoring youtube.com and youtu.be, logging to file
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Embedded Youtube video was played"; pcre:"/youtube.com|youtu.be/i"; threshold:type limit, track by_src, count 2 , seconds 60; logto:/var/log/snort/youtubeviolation.log; sid:1000003;)
+
+# Detect failed attempts to log in
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"Somebody tried 3 times unsuccessfully to log in as administrator"; flow:from_server,established; content:"530 "; depth:4; pcre:"/530\s+(Login|User|Failed|Not)/smi"; content:"administrator"; nocase; metadata: service ftp; threshold:type threshold, track by_src, count 3,seconds 60; classtype:suspicious-login; sid:1000004; rev:1;)
+
+# Very generic alert for FTP (no alerts generated)
+alert tcp any any -> any any (msg:"FTP Brute Force Attempt"; content:"530 "; nocase; offset:0; depth:4; sid:1000005; rev:1;)
+
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"FTP Brute Force Attempt"; flow:from_server,established; content:"530 "; nocase; offset:0; depth:4; detection_filter:track by_src, count 2, seconds 120; sid:1000006; rev:1;)
+
