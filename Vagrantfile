@@ -122,7 +122,7 @@ Vagrant.configure("2") do |config|
      wget https://www.snort.org/rules/snortrules-snapshot-29111.tar.gz?oinkcode=$OINKCODE -O ~/registered.tar.gz
      tar -xvf ~/registered.tar.gz -C /etc/snort
 
-     echo "colorscheme desert" > ~/.vimrc
+     echo "colorscheme morning" > ~/.vimrc
      cp /vagrant/bash_config.env ~/.bash_profile
      source ~/.bash_profile
 

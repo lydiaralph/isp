@@ -1,20 +1,71 @@
+#################################################################
+# SCENARIO 1: Detecting visits to youtube.com                   #
+#################################################################
+
+
 # Using YouTube's IP address
 alert tcp $HOME_NET any -> 216.58.201.46 443 (msg:"Youtube was visited"; threshold:type limit, track by_src, count 2 , seconds 60; sid:1000001;)
 
 # Checking visits to youtube webpage
 alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Youtube was visited"; content:"youtube.com"; http_header; nocase; content:"GET"; http_method; threshold:type limit, track by_src, count 2 , seconds 60; sid:1000002;)
 
+#################################################################
+# SCENARIO 2: Detecting embedded youtube.com content            #
+#################################################################
+
 # Monitoring youtube.com and youtu.be, logging to file
 alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Embedded Youtube video was played"; pcre:"/youtube.com|youtu.be/i"; threshold:type limit, track by_src, count 2 , seconds 60; logto:/var/log/snort/youtubeviolation.log; sid:1000003;)
+
+
+#################################################################
+# SCENARIO 3: Detecting DDOS attack (Shaft)                     #
+#################################################################
+
+# Very generic alert for FTP (no alerts generated)
+alert tcp any any -> any any (msg:"FTP Brute Force Attempt"; content:"530 "; nocase; offset:0; depth:4; sid:1000031; rev:1;)
+
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"FTP Brute Force Attempt"; flow:from_server,established; content:"530 "; nocase; offset:0; depth:4; detection_filter:track by_src, count 2, seconds 120; sid:1000032; rev:1;)
+
+
+############################################################################
+# Please note that the following rules are written by [Roesch and Caswell] #
+# I am not submitting them as original work                                #
+############################################################################
+
+alert tcp $HOME_NET 20432 -> $EXTERNAL_NET any (msg:"DDOS shaft client login to handler"; flow:from_server,established; content:"login|3A|"; reference:arachnids,254; reference:url,security.royans.net/info/posts/bugtraq_ddos3.shtml; classtype:attempted-dos; sid:230; rev:5;)
+
+alert udp $EXTERNAL_NET any -> $HOME_NET 18753 (msg:"DDOS shaft handler to agent"; content:"alive tijgu"; reference:arachnids,255; classtype:attempted-dos; sid:239; rev:2;)
+
+alert udp $EXTERNAL_NET any -> $HOME_NET 20433 (msg:"DDOS shaft agent to handler"; content:"alive"; reference:arachnids,256; classtype:attempted-dos; sid:240; rev:2;)
+
+############################################################################
+# End of [Roesch and Caswell] rules - the other rules are original work    #
+############################################################################
+
+
+
+#################################################################
+# SCENARIO 4: Detecting attempts to log in as administrator     #
+#################################################################
 
 # Detect failed attempts to log in
 alert tcp $HOME_NET 21 -> $EXTERNAL_NET any  (msg:"Attempted log in by administrator"; content:"administrator"; nocase; flowbits:set,admin_user; flowbits:noalert; sid:1000007; rev:1;)
 
-# TODO: Check by_dst or by_src
 alert tcp $HOME_NET 21 -> $EXTERNAL_NET any  (msg:"Somebody tried 3 times unsuccessfully to log in"; flow:from_server,established; flowbits: isset,admin_user; content:"530 "; depth:4; pcre:"/530\s+(Login|Incorrect|User|Failed|Not)/smi"; threshold: type threshold, track by_dst, count 3, seconds 60; classtype:suspicious-login; sid:1000004; rev:1;)
 
-# Very generic alert for FTP (no alerts generated)
-alert tcp any any -> any any (msg:"FTP Brute Force Attempt"; content:"530 "; nocase; offset:0; depth:4; sid:1000005; rev:1;)
 
-alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"FTP Brute Force Attempt"; flow:from_server,established; content:"530 "; nocase; offset:0; depth:4; detection_filter:track by_src, count 2, seconds 120; sid:1000006; rev:1;)
+#################################################################
+# SCENARIO 5: Detecting DNS, HTTPS and FTP traffic              #
+#################################################################
 
+# Any packets using UDP on DNS port 53
+alert udp any 53 <> $HOME_NET 53 (sid:10000051; rev:1;)
+
+# Any packets using TCP on DNS port 53
+alert tcp any 53 <> $HOME_NET 53 (sid:10000052; rev:1;)
+
+# Any packets using TCP on HTTPS port 443
+alert tcp any any <> $HOME_NET 443 (sid:10000052; rev:1;)
+
+# Any packets using TCP on FTP port 21
+alert tcp any any <> $HOME_NET 21 (sid:10000052; rev:1;)
